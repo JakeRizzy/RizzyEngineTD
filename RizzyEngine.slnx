@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="RizzyEngine.vcxproj" Id="0f32baf4-bdcd-4f24-9654-b6e95aca8397" />
+</Solution>

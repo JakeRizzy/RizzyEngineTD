@@ -2,7 +2,7 @@
 Product Owner: Jacob Risoldi
 Product Name: RizzyEngine
 Version: 0.2.5
-Version Date: February 2026
+Version Date: March 2026
 Language: C++ 20
 Toolchain: SFML 2.6.1, ImGui 1.89.9, ImGui-SFML 2.6
 */

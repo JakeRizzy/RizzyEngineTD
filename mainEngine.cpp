@@ -163,7 +163,7 @@ int main() {
 	addCircle(shapesContainer, myFont, "Circle 1", 50.00f, 100.00f, 100.00f, 50.00f, 50.00f, true, sf::Color(255, 0, 0)); // Add a circle shape to the shapesContainer vector.
 	addRectangle(shapesContainer, myFont, "Rectangle 1", 120.00f, 80.00f, 400.00f, 300.00f, -50.00f, -50.00f, false, sf::Color(0, 0, 255)); // Add a rectangle shape to the shapesContainer vector.
 
-	sf::RenderWindow window(sf::VideoMode(1280, 720), "2D Game Engine"); // Create a window with 1280x720 resolution.
+	sf::RenderWindow window(sf::VideoMode(1280, 720), "RizzyEngine"); // Create a window with 1280x720 resolution.
 	window.setFramerateLimit(60); // Set the frame rate to 60 FPS.
 	ImGui::SFML::Init(window); // Initialize ImGui-SFML with the created window.	
 

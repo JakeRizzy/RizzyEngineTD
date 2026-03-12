@@ -170,7 +170,7 @@ int main() {
 	/* Text Test
 	sf::Text textTest("Font loaded successfully", myFont, 24); // Create a text object, give it a message, assign the font, and set the character size.
 	textTest.setFillColor(sf::Color::White); // Set the text color to white.
-	textTest.setPosition(500.00f, 360.00f); // Set the text position right 500 and down 360 from the top left corner.
+	textTest.setPosition(540.00f, 360.00f); // Set the text position right 500 and down 360 from the top left corner.
 	*/
 
 	while (window.isOpen()) { // The main game loop which continues until the window is closed.

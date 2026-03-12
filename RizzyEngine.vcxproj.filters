@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="mainEngine.cpp">
+    <ClCompile Include="MainEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="External\imgui\imgui.cpp">

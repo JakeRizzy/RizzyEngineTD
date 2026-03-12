@@ -125,7 +125,10 @@
       <AdditionalLibraryDirectories>$(ProjectDir)External\SFML\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(ProjectDir)External\SFML\bin\*.dll" "$(OutDir)"</Command>
+      <Command>xcopy /y /d "$(ProjectDir)External\SFML\bin\*.dll" "$(OutDir)"
+xcopy /y /e /d "$(ProjectDir)Assets" "$(OutDir)Assets\"
+xcopy /y /e /d "$(ProjectDir)AppData" "$(OutDir)AppData\"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,7 +149,10 @@
       <AdditionalLibraryDirectories>$(ProjectDir)External\SFML\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(ProjectDir)External\SFML\bin\*.dll" "$(OutDir)"</Command>
+      <Command>xcopy /y /d "$(ProjectDir)External\SFML\bin\*.dll" "$(OutDir)"
+xcopy /y /e /d "$(ProjectDir)Assets" "$(OutDir)Assets\"
+xcopy /y /e /d "$(ProjectDir)AppData" "$(OutDir)AppData\"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -155,7 +161,7 @@
     <ClCompile Include="External\imgui\imgui_draw.cpp" />
     <ClCompile Include="External\imgui\imgui_tables.cpp" />
     <ClCompile Include="External\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="mainEngine.cpp" />
+    <ClCompile Include="MainEngine.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

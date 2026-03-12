@@ -18,19 +18,19 @@
     <ClCompile Include="mainEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Libraries\imgui-SFML\imgui-SFML.cpp">
+    <ClCompile Include="External\imgui\imgui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Libraries\imgui\imgui.cpp">
+    <ClCompile Include="External\imgui\imgui_draw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Libraries\imgui\imgui_draw.cpp">
+    <ClCompile Include="External\imgui\imgui_tables.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Libraries\imgui\imgui_tables.cpp">
+    <ClCompile Include="External\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Libraries\imgui\imgui_widgets.cpp">
+    <ClCompile Include="External\imgui-SFML\imgui-SFML.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

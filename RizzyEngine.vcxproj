@@ -161,7 +161,15 @@ xcopy /y /e /d "$(ProjectDir)AppData" "$(OutDir)AppData\"
     <ClCompile Include="External\imgui\imgui_draw.cpp" />
     <ClCompile Include="External\imgui\imgui_tables.cpp" />
     <ClCompile Include="External\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="MainEngine.cpp" />
+    <ClCompile Include="Source\Engine.cpp" />
+    <ClCompile Include="Source\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Components.hpp" />
+    <ClInclude Include="Source\Engine.h" />
+    <ClInclude Include="Source\Entity.hpp" />
+    <ClInclude Include="Source\EntityManager.hpp" />
+    <ClInclude Include="Source\Vec2.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,0 +1,1 @@
+#pragma once // Prevents multiple inclusions of this header file.

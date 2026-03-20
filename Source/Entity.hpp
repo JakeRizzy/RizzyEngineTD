@@ -12,8 +12,8 @@ using ComponentTuple = std::tuple< // Define a type alias for a tuple that conta
 	CLifespan, // The CLifespan component for lifespan properties of entities.
 	CInput, // The CInput component for input properties of entities.
 	// Optional Components based on feature needs for entities in the engine to be commented out if not needed:
-	// CHealth, // The CHealth component for health properties of entities.
-	// CDamage, // The CDamage component for damage properties of entities.
+	CHealth, // The CHealth component for health properties of entities.
+	CDamage, // The CDamage component for damage properties of entities.
 	CScoreValue, // The CScoreValue component for scoring properties of entities.
 	CSpecialAbility // The CSpecialAbility component for special ability properties of entities.
 >;

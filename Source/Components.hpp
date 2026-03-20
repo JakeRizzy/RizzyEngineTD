@@ -1,6 +1,5 @@
 #pragma once // Prevents multiple inclusions of this header file.
 #include "Vec2.hpp" // Include the file that contains the custom Vec2 Utility Math class.
-#include <SFML/Graphics.hpp> // Include the SFML Graphics library for SFMLs types and functionality (Shapes, Color, Text).
 
 struct Component { // Base component struct that all other components will inherit from.
 	bool exists = false; // Initialize a boolean variable called "exists" to indicate whether the component exists for an entity, with a default value of false.
@@ -22,10 +21,10 @@ struct CShape : public Component { // Component for the shape properties of enti
 	CShape() = default; // Default constructor for CShape that initializes the circle shape component's properties to their default values.
 	// Parameterized constructor for CShape that takes in a radius, number of vertices, fill color, outline color, and outline thickness to initialize the circle shape component's properties.
 	// SFML constructor for circle shapes only takes in circle(float radius, size_t pointCount).	
-	CShape(float radius, int vertices, const sf::Color& fillColor, const sf::Color& outlineColor, float outlineThickness) : circle(radius, vertices) {
+	CShape(float outlineThickness, float radius, int vertices, const sf::Color& fillColor, const sf::Color& outlineColor) : circle(radius, vertices) {
+		circle.setOutlineThickness(outlineThickness); // Set the circle's outline thickness to the specified outline thickness.
 		circle.setFillColor(fillColor); // Set the circle's fill color to the specified fill color.
 		circle.setOutlineColor(outlineColor); // Set the circle's outline color to the specified outline color.
-		circle.setOutlineThickness(outlineThickness); // Set the circle's outline thickness to the specified outline thickness.
 		circle.setOrigin(radius, radius); // Set the circle's origin to be its center based on its radius.
 	}
 };
@@ -55,8 +54,6 @@ struct CInput : public Component { // Component for the input properties of enti
 };
 
 //Optional Components based on feature needs for entities in the engine to be commented out if not needed:
-
-/*
 struct CHealth : public Component { // Component for the health properties of entities, inheriting from the base Component struct.
 	float totalHealth = 10.00f, currentHealth = 10.00f; // Initialize float variables to hold the total health and current health of an entity, with default values of 10.00f.
 
@@ -72,7 +69,6 @@ struct CDamage : public Component { // Component for the damage properties of en
 	// Parameterized constructor for CDamage that takes in a damage value to initialize the damage component's properties.
 	CDamage(float damage) : damageValue(damage) {}
 };
-*/
 
 struct CScoreValue : public Component { // Component for the scoring properties of entities, inheriting from the base Component struct.
 	int scoreValue = 0; // Initialize an int variable called "scoreValue" to hold the score value of an entity, with a default value of 0.

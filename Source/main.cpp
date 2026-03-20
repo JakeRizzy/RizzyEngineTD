@@ -1,20 +1,27 @@
+/*
+Product Owner: Jacob Risoldi
+Product Name: RizzyEngine
+Version: 0.5.0: Geometry Wars Plus
+Version Date: March 2026
+Language: C++ 20
+Toolchain: SFML 2.6.1, ImGui 1.89.9, ImGui-SFML 2.6
+*/
+
+/*
 #include "Vec2.hpp"
 #include "Components.hpp"
 #include "Entity.hpp"
 #include "EntityManager.hpp"
-//#include "Engine.h"
-
+*/
+#include "Engine.h"
 #include <iostream>
-#include <SFML/Graphics.hpp>
-#include "imgui.h"
-#include "imgui-SFML.h"
 
 int main() {
-    /*
-    Engine engine("config.txt"); // Create an instance of the Engine class, passing in the path to the configuration file for initializing the engine's settings and properties.
-    engine.run(); // Call the run function of the Engine instance to start the main game loop and handle the window, rendering, the EntityManager, and all gameplay systems.
-    return 0; // Return 0 to indicate that the program ended successfully.
-    */
+    
+    Engine game("config.txt"); // Create an instance of the Engine class, passing in the path to the configuration file for initializing the engine's settings and properties.
+    game.run(); // Call the run function of the game instance to start the main game loop and handle the window, rendering, the EntityManager, and all gameplay systems.
+    return 0;
+    
 
     /*Main Loop Test*/
     /*
@@ -280,4 +287,5 @@ int main() {
     */
 
     /*Engine Test*/
+
 }

@@ -5,6 +5,13 @@ struct Component { // Base component struct that all other components will inher
 	bool exists = false; // Initialize a boolean variable called "exists" to indicate whether the component exists for an entity, with a default value of false.
 };
 
+struct CSubtype : public Component { // Component for the subtype properties of entities, inheriting from the base Component struct.
+	std::string subtype = "default"; // Initialize a string variable called "subtype" to hold a subtype identifier for an entity, with a default value of "default".
+	CSubtype() = default; // Default constructor for CSubtype that initializes the subtype component's properties to their default values (subtype "default").
+	// Parameterized constructor for CSubtype that takes in a subtype string to initialize the subtype component's properties.
+	CSubtype(const std::string& sub) : subtype(sub) {}
+};
+
 struct CTransform : public Component { // Component for the transformation properties of entities, inheriting from the base Component struct.
 	Vec2f position = { 0.00f, 0.00f }; // Initialize a Vec2 variable called "position" to hold the x and y coordinates of an entity, with default values of (0, 0).
 	Vec2f velocity = { 0.00f, 0.00f }; // Initialize a Vec2 variable called "velocity" to hold the velocity along the x and y axis for an entity, with default values of (0, 0).
@@ -79,12 +86,12 @@ struct CScoreValue : public Component { // Component for the scoring properties 
 };
 
 struct CSpecialAbility : public Component { // Component for the input properties of entities, inheriting from the base Component struct.
-	// Initialize boolean variables to hold the state of input controls for an entity, with default values of false (not pressed).
+	std::string abilityType = "none"; // Initialize a string variable called "abilityType" to hold the type of special ability an entity has, with a default value of "none".
 	float totalCooldown = 0.00f; // Initialize a float variable called "cooldownTime" to hold the cooldown time of an entity's special ability, with a default value of 0.00f.
 	float remainingCooldown = 0.00f; // Initialize a float variable called "cooldownRemaining" to hold the remaining cooldown time of an entity's special ability, with a default value of 0.00f.
 
-	// Default constructor for CInput that initializes the input component's properties to their default values (
+	// Default constructor for CSpecialAbility that initializes the special ability component's properties to their default values.
 	CSpecialAbility() = default;
-	// Parameterized constructor for CInput that takes in a cooldown time to initialize the special ability component's properties.
-	CSpecialAbility(float cooldownTime) : totalCooldown(cooldownTime), remainingCooldown(0.00f) {}
+	// Parameterized constructor for CSpecialAbility that takes in a cooldown time to initialize the special ability component's properties.
+	CSpecialAbility(std::string& type, float cooldownTime) : abilityType(type), totalCooldown(cooldownTime), remainingCooldown(0.00f) {}
 };

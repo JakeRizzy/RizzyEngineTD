@@ -6,6 +6,7 @@
 class EntityManager; // Forward declaration of the EntityManager class to allow it to be declared as a friend of the Entity class.
 
 using ComponentTuple = std::tuple< // Define a type alias for a tuple that contains all the components that an entity can have.
+	CSubtype, // The CSubtype component for subtype properties of entities.
 	CTransform, // The CTransform component for transformation properties of entities.
 	CShape, // The CShape component for shape properties of entities.
 	CCollision, // The CCollision component for collision properties of entities.

@@ -11,7 +11,7 @@ Toolchain: SFML 2.6.1, ImGui 1.89.9, ImGui-SFML 2.6
 #include <iostream>
 
 int main() {
-    Engine game("config.txt"); // Create an instance of the Engine class, passing in the path to the configuration file for initializing the engine's settings and properties.
+    Engine game("Assets/Levels/config.txt"); // Create an instance of the Engine class, passing in the path to the configuration file for initializing the engine's settings and properties.
     game.run(); // Call the run function of the game instance to start the main game loop and handle the window, rendering, the EntityManager, and all gameplay systems.
     return 0;
 }

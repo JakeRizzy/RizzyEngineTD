@@ -15,11 +15,12 @@ struct CSubtype : public Component { // Component for the subtype properties of 
 struct CTransform : public Component { // Component for the transformation properties of entities, inheriting from the base Component struct.
 	Vec2f position = { 0.00f, 0.00f }; // Initialize a Vec2 variable called "position" to hold the x and y coordinates of an entity, with default values of (0, 0).
 	Vec2f velocity = { 0.00f, 0.00f }; // Initialize a Vec2 variable called "velocity" to hold the velocity along the x and y axis for an entity, with default values of (0, 0).
-	float angle = 0.00f; // Initialize a float variable called "angle" to hold the rotation angle of an entity, with a default value of 0 degrees.
+	float visualAngle = 0.00f; // Initialize a float variable called "visualAngle" to hold the visual rotation angle of an entity, with a default value of 0 degrees.
+	float facingAngle = 0.00f; // Initialize a float variable called "facingAngle" to hold the angle that an entity is facing for movement and shooting purposes, with a default value of 0 degrees.
 
-	CTransform() = default; // Default constructor for CTransform that initializes the component's properties to their default values (position (0, 0), velocity (0, 0), and angle 0 degrees).
-	// Parameterized constructor for CTransform that takes in a position, velocity, and angle to initialize the component's properties.
-	CTransform(const Vec2f& pos, const Vec2f& vel, float ang) : position(pos), velocity(vel), angle(ang) {}
+	CTransform() = default; // Default constructor for CTransform that initializes the component's properties to their default values (position (0, 0), velocity (0, 0), and angles 0 degrees).
+	// Parameterized constructor for CTransform that takes in a position, velocity, visual angle, and facing angle to initialize the transformation component's properties.
+	CTransform(const Vec2f& pos, const Vec2f& vel, float vAng, float fAng) : position(pos), velocity(vel), visualAngle(vAng), facingAngle(fAng) {}
 };
 
 struct CShape : public Component { // Component for the shape properties of entities, inheriting from the base Component struct.
@@ -45,16 +46,16 @@ struct CCollision : public Component { // Component for the collision properties
 };
 
 struct CLifespan : public Component { // Component for the lifespan properties of entities, inheriting from the base Component struct.
-	int totalLifespan = 0, remainingLifespan = 0; // Initialize int variables to hold the total lifespan and remaining lifespan of an entity, with default values of 0.
+	float totalLifespan = 0.0f, remainingLifespan = 0.0f; // Initialize float variables to hold the total lifespan and remaining lifespan of an entity with default values of 0.
 
 	CLifespan() = default; // Default constructor for CLifespan that initializes the lifespan component's properties to their default values (total and remaining lifespan of 0).
-	// Parameterized constructor for CLifespan that takes in a total lifespan in frames to initialize the lifespan component's properties.
-	CLifespan (int totalLifespanFrames) : totalLifespan(totalLifespanFrames), remainingLifespan(totalLifespanFrames) {}
+	// Parameterized constructor for CLifespan that takes in a total lifespan time to initialize the lifespan component's properties.
+	CLifespan (float totalLifespanTime) : totalLifespan(totalLifespanTime), remainingLifespan(totalLifespanTime) {}
 };
 
 struct CInput : public Component { // Component for the input properties of entities, inheriting from the base Component struct.
 	// Initialize boolean variables to hold the state of input controls for an entity, with default values of false (not pressed).
-	bool up = false, down = false, left = false, right = false, pause = false, interact = false, shoot = false, special = false;
+	bool up = false, down = false, left = false, right = false, pause = false, interact = false, shoot = false, special = false, switchAbility = false;
 	
 	// Default constructor for CInput that initializes the input component's properties to their default values (
 	CInput() = default;
@@ -86,12 +87,12 @@ struct CScoreValue : public Component { // Component for the scoring properties 
 };
 
 struct CSpecialAbility : public Component { // Component for the input properties of entities, inheriting from the base Component struct.
-	std::string abilityType = "none"; // Initialize a string variable called "abilityType" to hold the type of special ability an entity has, with a default value of "none".
+	int abilityType = 1; // Initialize an integer variable called "abilityType" to hold the type of special ability an entity has, with a default value of 1.
 	float totalCooldown = 0.00f; // Initialize a float variable called "cooldownTime" to hold the cooldown time of an entity's special ability, with a default value of 0.00f.
 	float remainingCooldown = 0.00f; // Initialize a float variable called "cooldownRemaining" to hold the remaining cooldown time of an entity's special ability, with a default value of 0.00f.
 
 	// Default constructor for CSpecialAbility that initializes the special ability component's properties to their default values.
 	CSpecialAbility() = default;
-	// Parameterized constructor for CSpecialAbility that takes in a cooldown time to initialize the special ability component's properties.
-	CSpecialAbility(std::string& type, float cooldownTime) : abilityType(type), totalCooldown(cooldownTime), remainingCooldown(0.00f) {}
+	// Parameterized constructor for CSpecialAbility that takes in an ability type integer and cooldown time to initialize the special ability component's properties.
+	CSpecialAbility(int type, float cooldownTime) : abilityType(type), totalCooldown(cooldownTime), remainingCooldown(0.00f) {}
 };

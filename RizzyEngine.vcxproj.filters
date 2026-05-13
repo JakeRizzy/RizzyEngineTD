@@ -55,6 +55,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="config.txt" />
+    <Text Include="Assets\Levels\config.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

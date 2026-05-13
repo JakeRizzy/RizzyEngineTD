@@ -22,14 +22,14 @@ struct EnemyConfig {
 	int SFillR = 0, SFillG = 0, SFillB = 0, SFillA = 0;
 	// Enemy properties: Values for the projectile shape component's outline color RGBA values and outline thickness.
 	int SOutR = 0, SOutG = 0, SOutB = 0, SOutA = 0;
-	// Enemy properties: Minimum and maximum values for the enemy's lifespan component in frames (determines how long the enemy will exist before being automatically destroyed).
-	int SLifeMin = 0, SLifeMax = 0;
-	int SSpawnMin = 0, SSpawnMax = 0; // Enemy properties: Minimum and maximum values for the enemy's spawn rate in frames (determines how often this enemy may spawn).
+	// Enemy properties: Minimum and maximum values for the enemy's lifespan component *
+	float SLifeMin = 0, SLifeMax = 0;
+	float SSpawnMin = 0, SSpawnMax = 0; // Enemy properties: Minimum and maximum values for the enemy's spawn rate *
 	int SVal = 0; // Enemy properties: Value for the enemy's score value component (determines how many points the player receives for destroying this enemy).
 	float SSpeedMin = 0.0f, SSpeedMax = 0.0f; // Enemy properties: Minimum and maximum values for the enemy's speed scalar value.
 	float SHealth = 0.0f; // Enemy properties: Value for the enemy's health component (determines how many projectiles can hit the enemy before it is destroyed).
 	float SDamage = 0.0f; // Enemy properties: Value for the enemy's damage component (determines how much damage the enemy will deal to the player upon collision).
-	// Enemy properties: A boolean flag to indicate whether the enemy's color properties should be randomized for each spawn (true).
+	// Enemy properties: A boolean flag to indicate whether the enemy's color properties should be randomized for each spawn.
 	bool randomizeColor = false;
 	float spawnChance = 0.0f; // Enemy properties: A float value between 0 and 1 to indicate the chance for this enemy type to spawn when an enemy spawn is triggered.
 };
@@ -42,9 +42,9 @@ struct ProjectileConfig {
 	int SFillR = 0, SFillG = 0, SFillB = 0, SFillA = 0;
 	// Projectile properties: Values for the projectile shape component's outline color RGBA values and outline thickness.
 	int SOutR = 0, SOutG = 0, SOutB = 0, SOutA = 0;
-	// Projectile properties: Minimum and maximum values for the projectile's lifespan component in frames (determines how long the projectile will exist before being automatically destroyed).
-	int SLifeMin = 0, SLifeMax = 0;
-	int SSpawnMin = 0, SSpawnMax = 0; // Projectile properties: Minimum and maximum values for the projectile's spawn rate in frames (determines how often this projectile type will spawn).
+	// Projectile properties: Minimum and maximum values for the projectile's lifespan component *
+	float SLifeMin = 0, SLifeMax = 0;
+	float SSpawnMin = 0, SSpawnMax = 0; // Projectile properties: Minimum and maximum values for the projectile's spawn rate *
 	// Projectile properties: Values for the projectile's score value component (determines how many points the player receives for destroying this projectile if needed).
 	int SVal = 0;
 	float SSpeedMin = 0.0f, SSpeedMax = 0.0f; // Projectile properties: Minimum and maximum values for the projectile's speed scalar value.
@@ -61,26 +61,41 @@ class Engine { // Defines the Engine class, which is responsible for initializin
 		EntityManager m_entities; // EntityManager object for managing game entities and their components.
 		sf::Font m_font; // SFML Font object for loading and managing the font used for rendering text in the game.
 		sf::Text m_text; // SFML Text object for rendering text in the game, such as the player's score and game state messages.
-		PlayerConfig m_playerConfig; // A struct to hold the player configuration data loaded from the config.txt file.
-		std::vector<EnemyConfig> m_enemyConfigs; // A vector of structs to hold multiple enemy configuration data loaded from the config.txt file for different enemy types.
-		std::vector<ProjectileConfig> m_projectileConfigs; // A vector of structs to hold multiple projectile configuration data loaded from the config.txt file for different projectile types.
 		sf::Clock m_deltaClock; // SFML Clock object for tracking the time elapsed between frames, used for frame rate independent movement and timing in the game.
+		PlayerConfig m_playerConfig; // A struct to hold the player configuration data loaded from the config.txt file.
+		std::vector<EnemyConfig> m_enemyConfigs; // A vector of structs to hold multiple enemy configuration datas loaded from the config.txt file for different enemy types.
+		std::vector<ProjectileConfig> m_projectileConfigs; // A vector of structs to hold multiple projectile configuration datas loaded from the config.txt file for different projectile types.
+		std::string m_lastEnemySubtype = ""; // A string variable to track the subtype of the last enemy spawned, used for limiting consecutive spawns of the same enemy type in a row.
+		int m_consecutiveTypeCount = 0; // An integer variable to track the number of consecutive spawns of the same enemy type, used for limiting consecutive spawns of the same enemy type in a row.
 		int m_currentScore = 0; // An integer variable to track the player's score in the game, initialized to 0.
 		int m_highScore = 0; // An integer variable to track the player's high score, initialized to 0.
-		int m_frameCount = 0; // An integer variable to track the number of frames that have elapsed since the start of the game, initialized to 0.
-		int m_currentFrame = 0; // An integer variable to track the current frame number, used for timing enemy and projectile spawns based on their spawn rate, initialized to 0.
+		int m_currentFrame = 0; // An integer variable to track the current frame number, initialized to 0.
+		int m_currentSpecialAbility = 1; // An integer variable to track the currently selected special ability for the player, initialized to 1.
+		float m_deltaTimeSeconds = 0.0f; // A float variable to track the time elapsed between frames in seconds, initialized to 0.
+		float m_gameTime = 0.0f; // A float variable to track the total time elapsed since the start of the current game session in seconds, initialized to 0.
+		float m_gameOverTime = 0.0f; // A float variable to track the time elapsed since the game over state was triggered.
+		float m_lastPlayerFireTime = -1.5f; // A float variable to track the last time the player fired, initialized to -1.5 so the player can fire right away.
+		float m_lastEnemySpawnTime = 0.0f; // A float variable to track the time when the last enemy was spawned, used for timing enemy spawns based on their spawn interval, initialized to 0.
+		float m_specialAbilityCooldown = 0.0f; // A float variable to track the amount of time the special ability is on cooldown for.
+		float m_specialAbilityDuration = 0.0f; // A float variable to track the amount of time the special ability is active for.
+		float m_specialAbilityEnd = 0.0f; // A float variable to track the time when the special ability should end.
+		float m_spawnInterval = 0.0f; // A float variable to track the current spawn interval in seconds between spawns, modified by the enemy configuration data, initialized to 0.
 		float m_timeSurvived = 0.0f; // A float variable to track the time the player has survived in the current game session, initialized to 0.
 		float m_bestTimeSurvived = 0.0f; // A float variable to track the best time the player has survived across all game sessions, initialized to 0.
-		int m_lastEnemySpawnFrame = 0; // An integer variable to track the frame number when the last enemy was spawned, used for timing enemy spawns based on their spawn interval, initialized to 0.
-		int m_spawnInterval = 300; // An integer variable to track the current spawn interval in frames between spawns, modified by the enemy configuration data, initialized to 0.
+		bool m_firstEnemySpawned = false; // A boolean flag to indicate whether the first enemy has been spawned yet, used to have the first enemy spawn at a different time than the regular spawn interval.
+		bool m_specialAbilityActive = false; // A boolean flag to indicate whether the player's special ability is currently active, initialized to false.
 		bool m_paused = false; // A boolean flag to indicate whether the game is currently paused, initialized to false.
 		bool m_running = true; // A boolean flag to indicate whether the game loop should continue running, initialized to true.
 		bool m_gameOver = false; // A boolean flag to indicate whether the game is over, initialized to false.
+		bool m_sMovementEnabled = true; // A boolean flag to indicate whether the movement system should be updated and applied to entities during the game loop.
+		bool m_sCollisionEnabled = true; // A boolean flag to indicate whether the collision system should be updated and applied to entities during the game loop.
+		bool m_sLifespanEnabled = true; // A boolean flag to indicate whether the lifespan system should be updated and applied to entities during the game loop.
+		bool m_sEnemyLogicEnabled = true; // A boolean flag to indicate whether the enemy logic system should be updated and applied to entities during the game loop.
+		bool m_sGuiEnabled = true; // A boolean flag to indicate whether the debugging UI should be displayed.
+
 
 		// Private member function to initialize the game engine, including loading the configuration data from the specified config file path, setting up the window, font, and text objects.
 		void init(const std::string& configPath);
-		void setPaused(bool paused); // Private member function to set the paused state of the game, which can be called by the input handling system when the player presses the pause key.
-		void setGameOver(bool gameOver); // Private member function to set the game over state of the game, which can be called when the player's health reaches 0.
 
 		// Systems for handling different aspects of the game, such as input, movement, rendering, collision detection, enemy spawning, scoring, etc..
 		void sRender(); // System for rendering all entities with a shape component and rendering the player's score and game state messages using the text component.
@@ -99,7 +114,14 @@ class Engine { // Defines the Engine class, which is responsible for initializin
 		// Helper function to spawn a projectile entity based projectile configuration data and the source entity's properties.
 		void spawnProjectile(std::shared_ptr<Entity> sourceEntity, const Vec2f& targetPos);
 		// Helper function to spawn a special ability entity based on the player's input and the source entity's properties.
-		void spawnSpecialAbility(std::shared_ptr<Entity> sourceEntity);
+		void spawnSpecialAbility(std::shared_ptr<Entity> sourceEntity, int abilityType);
+
+		// Helper functions for managing and loading save data and game states.
+		void setPaused(bool paused); // Private member function to set the paused state of the game, which can be called by the input handling system when the player presses the pause key.
+		void setGameOver(bool gameOver); // Private member function to set the game over state of the game, which can be called when the player's health reaches 0.
+		void restartGame(); // Private member function to reset the game state to start a new game session, which can be called when the player chooses to restart after a game over.
+		void saveGameData(); // Private member function to save the current game data to a file, which can be called when the game is paused or exiting.
+		void loadSavedData(); // Private member function to load the saved game data from a file, which can be called when starting a new game or resuming a saved game.
 
 		std::shared_ptr<Entity> m_player; // A shared pointer to the player entity, allowing for easy access and management of the player entity throughout the engine.
 

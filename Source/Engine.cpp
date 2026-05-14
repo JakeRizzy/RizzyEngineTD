@@ -45,8 +45,8 @@ void Engine::init(const std::string& configPath) {
 
 				if (width == 0 || height == 0) { // Check if the width or height values read from the config file are 0, which would be invalid for creating a window. If either value is 0,
 					sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode(); // Then get the desktop video mode using SFML's VideoMode class to use the desktop resolution for calculating window size.
-					width = desktopMode.width / 1.5; // Set the width to the desktop width divided by 1.5 to create a window that is slightly smaller than the full desktop resolution.
-					height = desktopMode.height / 1.5; // Set the height to the desktop height divided by 1.5 to create a window that is slightly smaller than the full desktop resolution.
+					width = desktopMode.width / 1.5f; // Set the width to the desktop width divided by 1.5 to create a window that is slightly smaller than the full desktop resolution.
+					height = desktopMode.height / 1.5f; // Set the height to the desktop height divided by 1.5 to create a window that is slightly smaller than the full desktop resolution.
 				}
 				else if (fullscreen) { // Check if the fullscreen flag is set in the config file. If it is,
 					m_window.create(sf::VideoMode(width, height), windowTitle, sf::Style::Fullscreen); // Then create a fullscreen window using the SFML RenderWindow's create function.
@@ -416,14 +416,14 @@ void Engine::spawnEnemy() {
 	std::uniform_real_distribution<float> distDirection(0, 6.28318f); // 0 to 2*PI radians
 	float direction = distDirection(m_rng); // Generate a random direction for the enemy to move in using the defined distribution (to be multiplied by the speed scalar to get the velocity vector).
 
-	float velX = std::cos(direction) * speed * 60.0f; // Calculate the X component of the enemy's velocity based on the random direction and speed scalar, and convert it from frames to seconds.
-	float velY = std::sin(direction) * speed * 60.0f; // Calculate the Y component of the enemy's velocity based on the random direction and speed scalar, and convert it from frames to seconds.
+	float velX = std::cos(direction) * speed; // Calculate the X component of the enemy's velocity based on the random direction and speed scalar.
+	float velY = std::sin(direction) * speed; // Calculate the Y component of the enemy's velocity based on the random direction and speed scalar.
 
 	if (speed != 0.0f) { // Check if the configured speed for the enemy is not zero and if it's not ensure it does not spawn stationary.
 		while (velX == 0.0f && velY == 0.0f) { // If the generated velocity vector is (0,0), which would mean the enemy is stationary, regenerate the X and Y velocity components.
 			direction = distDirection(m_rng); // Generate a new random direction for the enemy to move in.
-			velX = std::cos(direction) * speed * 60.0f; // Recalculate the X component of the enemy's velocity based on the new random direction and speed scalar, and convert it from frames to seconds.
-			velY = std::sin(direction) * speed * 60.0f; // Recalculate the Y component of the enemy's velocity based on the new random direction and speed scalar, and convert it from frames to seconds.
+			velX = std::cos(direction) * speed; // Recalculate the X component of the enemy's velocity based on the new random direction and speed scalar.
+			velY = std::sin(direction) * speed; // Recalculate the Y component of the enemy's velocity based on the new random direction and speed scalar.
 		}
 	}
 
@@ -488,7 +488,7 @@ void Engine::spawnSmallEnemies(std::shared_ptr<Entity> parentEntity) {
 		float radians = (angleStep * i) * (3.14159f / 180.0f);
 		// Calculate the velocity vector for the small enemy based on the angle and the parent entity's velocity, so they shoot outwards in a circle.
 		float speed = std::sqrt(vel.x * vel.x + vel.y * vel.y); // Calculate the speed scalar from the parent entity's velocity vector to maintain the same speed for the small enemies.
-		if (speed < 6.0f) speed = 6.0f; // Ensure a minimum speed for the small enemies so they don't spawn stationary if the parent entity is slow or stationary.
+		if (speed < 6.0f) speed = 75.0f; // Ensure a minimum speed for the small enemies so they don't spawn stationary if the parent entity is slow or stationary.
 		Vec2f smallVel(std::cos(radians) * speed, std::sin(radians) * speed); // Calculate the velocity vector for the small enemy based on the angle and speed.
 	
 		// Add a CTransform component to the small enemy entity with the initial position set to the parent entity's position, velocity based on the angle and speed, and an angle of 0 degrees.
@@ -515,7 +515,7 @@ void Engine::spawnProjectile(std::shared_ptr<Entity> sourceEntity, const Vec2f& 
 	std::string tag = sourceEntity->getTag(); // Get the tag of the source entity to determine which projectile configuration to use based on the source entity type (e.g., player or enemy).
 
 	if (tag == "player") { // If the source entity is the player, check the cooldown timer for the player's firing rate before allowing a new projectile to be spawned.
-		if (m_gameTime - m_lastPlayerFireTime < 1.0f) return; // If the time since the last player fire is less than 1 second, return early to enforce the cooldown and prevent spawning a new projectile.
+		if (m_gameTime - m_lastPlayerFireTime < 0.5f) return; // If the time since the last player fire is less than 0.5 seconds, return early to enforce the cooldown and prevent spawning a new projectile.
 		m_lastPlayerFireTime = m_gameTime; // Update the last player fire time to the current game time when a new projectile is spawned to start the cooldown timer.
 	}
 
@@ -542,6 +542,8 @@ void Engine::spawnProjectile(std::shared_ptr<Entity> sourceEntity, const Vec2f& 
 				// Set the direction vector to point from the enemy's position to the player's position for the projectile to travel towards the player.
 				direction = m_player->get<CTransform>().position - sourceTransform.position;
 			}
+			// Reduce the speed of the sniper projectile to make it easier to dodge, since it is aimed directly at the player.
+			projectileConfig.SSpeedMax *= 0.75f; // Reduce the maximum speed of the projectile by multiplying it by a factor less than 1.
 		}
 		else if (subtype == "ShooterSt") { // If the enemy subtype is a shooter straight,
 			// Shoot in a straight line based on the enemy's facing angle.
@@ -568,7 +570,7 @@ void Engine::spawnProjectile(std::shared_ptr<Entity> sourceEntity, const Vec2f& 
 	// Add a CSubtype component to the projectile entity with the subtype value defined in the projectile configuration for the selected projectile type.
 	projectile->add<CSubtype>(projectileConfig.projectileType);
 	// Add a CTransform component to the projectile entity with the calculated spawn position and angle, velocity based on its direction and speed from the projectile configuration.
-	projectile->add<CTransform>(spawnPos, direction * projectileConfig.SSpeedMax * 60, angle, angle); // Convert the projectile speed from frames to seconds by multiplying by 60.
+	projectile->add<CTransform>(spawnPos, direction * projectileConfig.SSpeedMax, angle, angle);
 	// Add a CShape component to the projectile entity with the properties defined in the selected projectile configuration.
 	projectile->add<CShape>(
 		projectileConfig.SOThickness,

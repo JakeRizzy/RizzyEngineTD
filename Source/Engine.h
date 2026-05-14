@@ -91,7 +91,7 @@ class Engine { // Defines the Engine class, which is responsible for initializin
 		bool m_sCollisionEnabled = true; // A boolean flag to indicate whether the collision system should be updated and applied to entities during the game loop.
 		bool m_sLifespanEnabled = true; // A boolean flag to indicate whether the lifespan system should be updated and applied to entities during the game loop.
 		bool m_sEnemyLogicEnabled = true; // A boolean flag to indicate whether the enemy logic system should be updated and applied to entities during the game loop.
-		bool m_sGuiEnabled = true; // A boolean flag to indicate whether the debugging UI should be displayed.
+		bool m_sGuiEnabled = false; // A boolean flag to indicate whether the debugging UI should be displayed.
 
 
 		// Private member function to initialize the game engine, including loading the configuration data from the specified config file path, setting up the window, font, and text objects.

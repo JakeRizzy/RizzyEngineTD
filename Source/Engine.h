@@ -72,6 +72,7 @@ class Engine { // Defines the Engine class, which is responsible for initializin
 		int m_currentFrame = 0; // An integer variable to track the current frame number, initialized to 0.
 		int m_currentSpecialAbility = 1; // An integer variable to track the currently selected special ability for the player, initialized to 1.
 		float m_deltaTimeSeconds = 0.0f; // A float variable to track the time elapsed between frames in seconds, initialized to 0.
+		float m_startTimer = 3.0f; // A float variable to track the countdown timer at the start of the game before the game begins, initialized to 3 seconds.
 		float m_gameTime = 0.0f; // A float variable to track the total time elapsed since the start of the current game session in seconds, initialized to 0.
 		float m_gameOverTime = 0.0f; // A float variable to track the time elapsed since the game over state was triggered.
 		float m_lastPlayerFireTime = -1.5f; // A float variable to track the last time the player fired, initialized to -1.5 so the player can fire right away.
@@ -84,6 +85,7 @@ class Engine { // Defines the Engine class, which is responsible for initializin
 		float m_bestTimeSurvived = 0.0f; // A float variable to track the best time the player has survived across all game sessions, initialized to 0.
 		bool m_firstEnemySpawned = false; // A boolean flag to indicate whether the first enemy has been spawned yet, used to have the first enemy spawn at a different time than the regular spawn interval.
 		bool m_specialAbilityActive = false; // A boolean flag to indicate whether the player's special ability is currently active, initialized to false.
+		bool m_mainMenu = true; // A boolean flag to indicate whether the game is currently in the main menu state, initialized to true.
 		bool m_paused = false; // A boolean flag to indicate whether the game is currently paused, initialized to false.
 		bool m_running = true; // A boolean flag to indicate whether the game loop should continue running, initialized to true.
 		bool m_gameOver = false; // A boolean flag to indicate whether the game is over, initialized to false.

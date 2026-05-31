@@ -63,5 +63,6 @@
     <None Include="README.md">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include=".gitignore" />
   </ItemGroup>
 </Project>

@@ -175,6 +175,7 @@ xcopy /y /e /d "$(ProjectDir)AppData" "$(OutDir)AppData\"
     <Text Include="Assets\Levels\config.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitignore" />
     <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -420,3 +420,7 @@ FodyWeavers.xsd
 *.msm
 *.msp
 /imgui.ini
+/AppData/SavedGame.dat
+/AppData/SavedGame.dat
+/AppData/SavedGame.dat
+/AppData/SavedGame.dat

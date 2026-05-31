@@ -18,8 +18,8 @@ Engine::Engine(const std::string& configPath) {
 // Implementation of the private init function for the Engine class, which initializes the engine's settings and properties based on the configuration file.
 void Engine::init(const std::string& configPath) {
 	// Seed the static RNG once
-	std::random_device rd;
-	m_rng.seed(rd());
+	std::random_device rd; // Create a random device object to obtain a seed for the random number generator (RNG).
+	m_rng.seed(rd()); // Seed the Mersenne Twister RNG with a random seed obtained from the random device to ensure different random values each time the game is run.
 
 	// Config File Parsing:
 	std::ifstream fin(configPath); // Create an input file stream (ifstream) object to read from the configuration file specified by configPath.
@@ -193,8 +193,8 @@ void Engine::run() { // Implementation of the run function, which contains the m
 		else if (m_gameOver) { // If the game is currently over, then
 			m_gameOverTime += m_deltaTimeSeconds; // Increment the game over timer by the time elapsed since the last frame to keep track of how long the game has been in the game over state.
 		}
-		if (m_startTimer >= 0.0f) {
-			m_startTimer -= m_deltaTimeSeconds; // If the start timer is still counting down (greater than zero), decrement the start timer by the time elapsed since the last frame.
+		if (!m_mainMenu && m_startTimer >= 0.0f) { // If the game is not in the main menu and the start timer is still active (greater than or equal to zero),
+			m_startTimer -= m_deltaTimeSeconds; // then decrement the start timer by the time elapsed since the last frame.
 			if (m_startTimer <= 0.0f) {
 				m_startTimer = -1.0f; // If the start timer has reached zero or below, set it to -1 to indicate that the game has officially started and the timer is no longer active.
 			}
@@ -230,7 +230,7 @@ void Engine::setGameOver(bool gameOver) { // Implementation of the setGameOver f
 	}
 }
 
-void Engine::restartGame() {
+void Engine::restartGame() { // Implementation of the restartGame function, which resets the game state to start a new game session.
 	for (auto& e : m_entities.getEntities()) { // Loop through all entities currently tracked by the EntityManager.
 		e->destroy(); // Call the destroy function on each entity, which sets their active flag to false and marks them for removal by the EntityManager's update function.
 	}
@@ -258,7 +258,7 @@ void Engine::restartGame() {
 	spawnPlayer(); // Call the helper function to spawn a new player entity at the center of the window for the new session.
 }
 
-void Engine::saveGameData() {
+void Engine::saveGameData() { // Implementation of the saveGameData function, which saves the current game data (high score and best time survived) to a file for persistence across game sessions.
 	std::filesystem::create_directories("AppData"); // Create the "AppData" directory if it does not already exist to ensure there is a location to save the game data file.
 	std::ofstream file("AppData/SavedGame.dat"); // Create or open an output file stream object to write to a file named "SavedGame.dat" in the "AppData" directory for saving the game data.
 	if (file.is_open()) { // Check if the file stream was successfully opened for writing.
@@ -267,7 +267,7 @@ void Engine::saveGameData() {
 	}
 }
 
-void Engine::loadSavedData() {
+void Engine::loadSavedData() { // Implementation of the loadSavedData function, which loads the saved game data (high score and best time survived) from a file to restore progress from previous game sessions.
 	std::ifstream file("AppData/SavedGame.dat"); // Create an input file stream object to read from the "SavedGame.dat" file that contains the saved game data from previous sessions.
 	if (file.is_open()) { // Check if the file stream was successfully opened for reading.
 		std::string label; // Declare a string variable to hold the label read from the file, which indicates what type of data is being read (e.g., "HighScore", "BestTimeSurvived").
@@ -276,7 +276,7 @@ void Engine::loadSavedData() {
 	}
 }
 
-void Engine::spawnPlayer() {
+void Engine::spawnPlayer() { // Implementation of the spawnPlayer function, which creates and initializes the player entity at the start of the game or when restarting.
 	// Create a new entity with the tag "Player" using the EntityManager's createEntity function, which returns a shared pointer to the newly created entity.
 	auto player = m_entities.createEntity("player");
 
@@ -305,7 +305,7 @@ void Engine::spawnPlayer() {
 	m_player = player; // Store a reference to the player entity in the Engine class for easy access when updating the player's state based on input and collisions during the game loop.
 }
 
-void Engine::spawnEnemy() {
+void Engine::spawnEnemy() { // Implementation of the spawnEnemy function, which creates and initializes a new enemy entity based on the enemy configuration data and spawn chances defined in the config file.
 	// Randomly select an enemy type to spawn using a weighted random selection method based on the spawnChance values defined in the enemy configuration data.
 	std::uniform_real_distribution<float> spawnChanceDist(0.0f, 1.0f); // Create a uniform real distribution for generating random spawn chance values between 0 and 1.
 	float spawnValue = spawnChanceDist(m_rng); // Generate a random value using the spawn chance distribution to determine which enemy type to spawn based on their defined spawn chances.
@@ -326,7 +326,7 @@ void Engine::spawnEnemy() {
 	// If no enemy configuration was selected based on the spawn chances (which could happen if the spawn chances do not sum to 1), default to the first enemy configuration in the vector.
 	if (!selectedConfig) selectedConfig = &m_enemyConfigs[0];
 	
-	// --- CONSECUTIVE SUBTYPE LIMITER---
+	// CONSECUTIVE SUBTYPE LIMITER
 		if (selectedConfig->enemyType == m_lastEnemySubtype) { // Check if the enemy type of the selected configuration is the same as the last enemy subtype that was spawned. If it is, then
 			m_consecutiveTypeCount++; // increment the consecutive type count by 1 to track how many times this enemy subtype has been spawned in a row.
 		}
@@ -350,6 +350,7 @@ void Engine::spawnEnemy() {
 
 	float totalSize = radius + outlineThickness; // Calculate the total size of the enemy based on its radius and outline thickness.
 
+	// Create a uniform integer distribution for the number of vertices in the enemy's shape based on the minimum and maximum vertex counts defined in the enemy configuration for the selected enemy type.
 	std::uniform_int_distribution<int> distVertices(enemyConfig.SVerticesMin, enemyConfig.SVerticesMax);
 	int vertices = distVertices(m_rng); // Generate a random number of vertices for the enemy's shape using the defined distribution based on the enemy configuration values.
 
@@ -479,7 +480,7 @@ void Engine::spawnEnemy() {
 		enemy->add<CScoreValue>(enemyConfig.SVal);
 }
 
-void Engine::spawnSmallEnemies(std::shared_ptr<Entity> parentEntity) {
+void Engine::spawnSmallEnemies(std::shared_ptr<Entity> parentEntity) { // Implementation of the spawnSmallEnemies function, which creates and initializes small enemy entities that spawn from a parent entity upon destruction.
 	
 	if (parentEntity->getTag() != "enemy") return; // Ensure that the parent entity is an enemy before attempting to spawn small enemies.
 
@@ -523,6 +524,7 @@ void Engine::spawnSmallEnemies(std::shared_ptr<Entity> parentEntity) {
 	}
 }
 
+// Implementation of the spawnProjectile function, which creates and initializes a new projectile entity based on the source entity (player or enemy) and the target position (mouse position for player projectiles).
 void Engine::spawnProjectile(std::shared_ptr<Entity> sourceEntity, const Vec2f& targetPos) {
 	if (m_projectileConfigs.empty()) return; // Check if there are any projectile configurations loaded before attempting to spawn a projectile. If the vector is empty, return early to avoid errors.
 	auto& sourceTransform = sourceEntity->get<CTransform>(); // Get a reference to the source entity's CTransform component to determine the starting position of the projectile.
@@ -607,7 +609,8 @@ void Engine::spawnProjectile(std::shared_ptr<Entity> sourceEntity, const Vec2f& 
 	projectile->add<CDamage>(projectileConfig.SDamage);
 }
 
-void Engine::spawnSpecialAbility(std::shared_ptr<Entity> sourceEntity, int abilityType) {
+// Implementation of the spawnSpecialAbility function, which creates and initializes special ability effects based on the source entity (player) and the specified ability type.
+void Engine::spawnSpecialAbility(std::shared_ptr<Entity> sourceEntity, int abilityType) { 
 	m_currentSpecialAbility = abilityType; // Set the current special ability type to the specified ability type.
 	if (!sourceEntity || !sourceEntity->isActive()) return; // Check if the source entity exists and is active before trying to access its components to spawn a special ability.
 	if (m_specialAbilityCooldown > 0.0f) return; // Check if the special ability cooldown timer is greater than 0 before allowing a new special ability to be spawned.
@@ -638,7 +641,7 @@ void Engine::spawnSpecialAbility(std::shared_ptr<Entity> sourceEntity, int abili
 	}
 }
 
-void Engine::sMovement() {
+void Engine::sMovement() { // Implementation of the sMovement function, which handles player input translation into velocity and applies velocity to position for all entities in the game.
 	// Player Input Translation into Velocity
 	if (m_player && m_player->isActive()) { // Check if the player entity exists and is active before trying to access its components to update its velocity based on input.
 		auto& input = m_player->get<CInput>(); // Get a reference to the player entity's CInput component to read the current input state for movement.
@@ -672,8 +675,8 @@ void Engine::sMovement() {
 	}
 }
 
-void Engine::sCollision() {
-	// detect and handle collisions between entities with collision components, such as player-enemy, player-projectile, player-wall, enemy-wall, enemy-projectile, enemy-enemy collisions.
+// Implementation of the sCollision function, which detects and handles collisions between entities with collision components, as well as collisions against the window bounds for player and enemy entities.
+void Engine::sCollision() { 
 	float winWidth = static_cast<float>(m_window.getSize().x); // Get the width of the game window as a float to use for collision checks against the window bounds.
 	float winHeight = static_cast<float>(m_window.getSize().y); // Get the height of the game window as a float to use for collision checks against the window bounds.
 
@@ -842,7 +845,9 @@ void Engine::sCollision() {
 	}
 }
 
-void Engine::sLifespan() {
+// Implementation of the sLifespan function, which updates the remaining lifespan of entities with a CLifespan component and destroys them when their lifespan expires,
+// also applies a fading effect to their shape based on the remaining lifespan.
+void Engine::sLifespan() { 
 	for (auto& entity : m_entities.getEntities()) { // Loop through all entities in the EntityManager to check for those that have a CLifespan component and update their lifespan accordingly.
 		if (entity->has<CLifespan>()) { // Check if the current entity has a CLifespan component, 
 			auto& life = entity->get<CLifespan>(); // If it does, get a reference to the CLifespan component to access and modify the remaining lifespan of the entity.
@@ -871,7 +876,7 @@ void Engine::sLifespan() {
 	}
 }
 
-void Engine::sEnemyLogic() {
+void Engine::sEnemyLogic() { // Implementation of the sEnemyLogic function, which handles the logic for spawning enemies based on timers and game time, as well as controlling the firing behavior of shooter-type enemies.
 	// Enemy spawn rate logic.
 	if (!m_firstEnemySpawned) { // Check if the first enemy has not been spawned yet to handle the initial spawn logic separately from the regular spawn logic.
 		if (m_startTimer <= 0.0f && m_gameTime <= 0.0f) { // If the start timer has reached 0 or below and the game time is at the beginning (0 or below),
@@ -1112,21 +1117,41 @@ void Engine::sRender() {
 		};
 
 	if (m_mainMenu) { // Render the main menu over the initial game world (player is already spawned and visible behind the overlay).
-		sf::RectangleShape overlay(sf::Vector2f(winW, winH));
+		sf::RectangleShape overlay(sf::Vector2f(winW, winH)); // Create a rectangle shape that covers the entire window to serve as the background overlay for the main menu.
 		overlay.setFillColor(sf::Color(0, 0, 0, 215)); // Deep semi-transparent dark overlay to focus on the text while hinting at the game world behind it.
-		m_window.draw(overlay);
+		m_window.draw(overlay); // Draw the overlay to the window before drawing the main menu text to ensure the text appears on top of the overlay for proper visibility and emphasis.
 
 		// Title
+		// First, calculate the total width of the entire string set by summing the widths of each individual strings that will be drawn, using the measureString lambda function.
 		float totalWidthTitle = measureString("RIZZYENGINE 0.5.0", 50).x + measureString(" | ", 50).x + measureString("Tech Demo: Geometry Wars Plus", 50).x;
+		// Then, set drawingX to the center of the window minus half of the total width of all the text so that the entire set of strings is centered when written from left to right.
 		drawingX = winW / 2.0f - totalWidthTitle / 2.0f;
 		drawingY = 10.0f; // Start the title higher up to make room for the features list below.
-		drawingX += drawUIElement("RIZZYENGINE 0.5.0", 50, drawingX, drawingY, sf::Color::Magenta, Left).x;
-		drawingX += drawUIElement(" | ", 50, drawingX, drawingY, sf::Color::White, Left).x;
+
+		// The following lines draw each UI element individually using the drawUIElement lambda function,
+		// starting at the calculated drawingX position and incrementing drawingX by the width of each drawn element as it is drawn to position the next element correctly.
+		// By using this syntax we immediately get the width of what we're drawing and can use it to position the next string without:
+		// creating separate variables, storing the data, or doing extra calls and calculations for spacing.
+		// This syntax is known as "immediate-mode" style and is very efficient compared to alternatives that would:
+		// require multiple steps, create unnecessary variables, store data we don't need, and/or do extra calculations for spacing.
+
+		// This syntax allows us to immediately get the width of what we're drawing and use it to position the next string without creating separate variables, storing the data, or doing extra calls and calculations for spacing.
+		drawingX += drawUIElement("RIZZYENGINE 0.5.0", 50, drawingX, drawingY, sf::Color::Magenta, Left).x; 
+
+		// This is the same as the syntax in the previous line, but I wanted to demonstrate what is happening in a more explicit way here.
+		Vec2f sepChar = drawUIElement(" | ", 50, drawingX, drawingY, sf::Color::White, Left); // Draw the separator string and store its width in a Vec2f variable to use for spacing before the next string.
+		drawingX += sepChar.x; // Increment drawingX by the width of the separator string to position the next string correctly after it without needing to create an unnecessary variable just for the width (.x).
+
+		// Since this is the last element in this string set, we don't need to use the return value for positioning and can just call drawUIElement;
+		// which is functionally the same as the previous lines for drawing the UI element but more efficient since we throw away the return value, 
+		// never creating an unnecessary variable, storing data we don't need, or doing any calculations.
 		drawUIElement("Tech Demo: Geometry Wars Plus", 50, drawingX, drawingY, sf::Color::Magenta, Left).x;
 
 		// Prompt
+		// First, calculate the total width of the entire string set by summing the widths of each individual strings that will be drawn, using the measureString lambda function.
 		float totalWidthPrompt = measureString("Press SPACE to Begin", 24).x + measureString(" | ", 24).x + measureString("Press Esc to Exit", 24).x + measureString(" | ", 24).x + 
 			measureString("Press Backspace to DELETE SAVE DATA", 24).x;
+		// Then, set drawingX to the center of the window minus half of the total width of all the text so that the entire set of strings is centered when written from left to right.
 		drawingX = winW / 2.0f - totalWidthPrompt / 2.0f;
 		drawingY += 52.0f + 20.0f; // Start the prompt lower down.
 		drawingX += drawUIElement("Press SPACE to Begin", 24, drawingX, drawingY, sf::Color::Green, Left).x;
@@ -1149,12 +1174,6 @@ void Engine::sRender() {
 		drawingX = winW / 2.0f - totalWidth / 2.0f;
 		drawingY += 18.0f + 10.0f; // Move down for the list of controls with some spacing after the section header.
 
-		// The following lines draw each UI element individually using the drawUIElement lambda function,
-		// starting at the calculated drawingX position and incrementing drawingX by the width of each drawn element as it is drawn to position the next element correctly.
-		// By using this syntax we immediately get the width of what we're drawing and can use it to position the next string without:
-		// creating separate variables, storing the data, or doing extra calls and calculations for spacing.
-		// This syntax is known as "immediate-mode" style and is very efficient compared to alternatives that would:
-		// require multiple steps, create unnecessary variables, store data we don't need, and/or do extra calculations for spacing.
 		drawingX += drawUIElement("WASD to Move", 15, drawingX, drawingY, sf::Color::Cyan, Left).x;
 
 		drawingX += drawUIElement(" | ", 15, drawingX, drawingY, sf::Color::White, Left).x;
@@ -1173,17 +1192,12 @@ void Engine::sRender() {
 
 		drawingX += drawUIElement("P to Pause", 15, drawingX, drawingY, sf::Color::Cyan, Left).x;
 
-		// This is the same as the syntax in the previous lines, but I wanted to demonstrate what is happening in a more explicit way here.
-		Vec2f sepChar = drawUIElement(" | ", 15, drawingX, drawingY, sf::Color::White, Left); // Draw the separator string and store its width in sepChar for the next line.
-		drawingX += sepChar.x; // Increment drawingX by the width of the separator string that was just drawn to position the next string correctly.
+		drawingX += drawUIElement(" | ", 15, drawingX, drawingY, sf::Color::White, Left).x;
 
-		// Since this is the last element in this string set, we don't need to use the return value for positioning and can just call drawUIElement;
-		// which is functionally the same as the previous lines for drawing the UI element but more efficient since we throw away the return value, 
-		// never creating an unnecessary variable, storing data we don't need, or doing any calculations.
 		drawUIElement("` to Toggle Debugging UI", 15, drawingX, drawingY, sf::Color::Cyan, Left);
 
 		// Engine features
-		drawingX = winW / 2.0f;
+		drawingX = winW / 2.0f; // Center the section header and features list at the center of the window.
 		drawingY += 15.0f + 20.0f; // Move down for the section header with extra spacing after the prompt.
 		drawUIElement("ENGINE FEATURES", 18, drawingX, drawingY, sf::Color::Yellow, Center);
 		drawingY += 18.0f + 10.0f; // Move down for the list of features with some spacing after the section header.
@@ -1226,24 +1240,24 @@ void Engine::sRender() {
 	}
 
 	else if (m_startTimer >= 0.0f) { // Otherise, if the game start timer is active, render the "Get Ready!" overlay with the countdown in the center of the screen.
-		drawingX = winW / 2.0f; 
-		drawingY = winH / 2.0f;
-		sf::RectangleShape overlay(sf::Vector2f(winW, winH));
+		drawingX = winW / 2.0f; // Center the overlay text horizontally by setting drawingX to half of the window width, and we will use Center alignment in drawUIElement to ensure the text is centered on this point.
+		drawingY = winH / 2.0f; // Start drawing the overlay text vertically at the center of the window, and we will adjust drawingY as we draw each element to position them correctly with spacing.
+		sf::RectangleShape overlay(sf::Vector2f(winW, winH)); // Create a rectangle shape that covers the entire window to serve as the background overlay for the countdown.
 		overlay.setFillColor(sf::Color(0, 0, 0, 90)); // Very light overlay so the player can clearly see themselves and the arena.
-		m_window.draw(overlay);
+		m_window.draw(overlay); // Draw the overlay to the window before drawing the countdown text to ensure the text appears on top of the overlay for proper visibility and emphasis.
 		int countDisplay = static_cast<int>(m_startTimer) + 1; // Calculate the countdown number to display by taking the integer part of the start timer and adding 1, so it counts down as 3, 2, 1, Go!
-		if (m_startTimer >= 0.5f) {
+		if (m_startTimer >= 0.5f) { // If the start timer is above 0.5 seconds, display the "Get Ready!" text and the countdown number; 
 			drawUIElement("Get Ready!", 26, drawingX, drawingY, sf::Color::White, Center);
 			drawingY += 26.0f + 10.0f; // Move down for the countdown number with some spacing after the "Get Ready!" text.
 			drawUIElement(std::to_string(countDisplay), 120, drawingX, drawingY, sf::Color::White, Center);
 		}
-		else if (m_startTimer <= 0.5f && m_startTimer != -1.0f) {
+		else if (m_startTimer <= 0.5f && m_startTimer != -1.0f) { // otherwise, if the start timer is between 0.5 seconds and 0 display "GO!" in large text to signal the start of the game.
 			drawUIElement("GO!", 26, drawingX, drawingY, sf::Color::White, Center);
 		}
 	}
-
-	if (!m_gameOver && !m_paused && !m_mainMenu) {
-		// Display the controls for the player at the bottom of the window, centered, when the game is active.
+ 
+	if (!m_gameOver && !m_paused && !m_mainMenu) { // If the game is not over, paused, or in the main menu,
+		// then display the controls for the player at the bottom of the window, centered, when the game is active.
 		// First, calculate the total width of the entire string set by summing the widths of each individual strings that will be drawn, using the measureString lambda function.
 		float totalWidth = measureString("WASD to Move", 15).x + measureString(" | ", 15).x +
 			measureString("LMB to Shoot", 15).x + measureString(" | ", 15).x +
@@ -1289,8 +1303,8 @@ void Engine::sRender() {
 		drawUIElement("` to Toggle Debugging UI", 15, drawingX, drawingY, sf::Color::Cyan, Left);
 	}
 	
-	if (!m_gameOver && !m_mainMenu) {
-		// draw the score and high score at the top-left corner of the window
+	if (!m_gameOver && !m_mainMenu) { // If the game is not over or in the main menu, 
+		// then draw the score and high score at the top-left corner of the window
 		drawingX = 10.0f; // Reset drawingX to the left edge of the window for the score and high score display.
 		drawingY = 10.0f; // Reset drawingY to the top edge of the window for the score and high score display.
 
@@ -1298,30 +1312,29 @@ void Engine::sRender() {
 		drawingX += drawUIElement(" | ", 15, drawingX, drawingY, sf::Color::White, Left).x;
 		drawingX += drawUIElement("High Score: " + std::to_string(m_highScore), 15, drawingX, drawingY, sf::Color::Yellow, Left).x;
 
-		// draw the time survived and best time survived at the top-right corner of the window
+		// and draw the time survived and best time survived at the top-right corner of the window
 		drawingX = winW - 10.0f; // Reset drawingX to the right edge of the window for the time display.
 		
-		std::stringstream bestTimeFormat;
-		bestTimeFormat << "Best Time: " << std::fixed << std::setprecision(3) << m_bestTimeSurvived << "s";
+		std::stringstream bestTimeFormat; // Create a string variable to hold the formatted best time survived string for display in the HUD, using a stringstream to format the float with fixed-point notation.
+		bestTimeFormat << "Best Time: " << std::fixed << std::setprecision(3) << m_bestTimeSurvived << "s"; // Format the best time survived to 3 decimal places for display in the HUD.
 		drawingX -= drawUIElement(bestTimeFormat.str(), 15, drawingX, drawingY, sf::Color::Yellow, Right).x;
 		drawingX -= drawUIElement(" | ", 15, drawingX, drawingY, sf::Color::White, Right).x;
-		std::stringstream timeFormat;
-		timeFormat << "Time: " << std::fixed << std::setprecision(3) << m_timeSurvived << "s";
+		std::stringstream timeFormat; // Create a string variable to hold the formatted current time survived string for display in the HUD, using a stringstream to format the float with fixed-point notation.
+		timeFormat << "Time: " << std::fixed << std::setprecision(3) << m_timeSurvived << "s"; // Format the current time survived to 3 decimal places for display in the HUD.
 		drawUIElement(timeFormat.str(), 15, drawingX, drawingY, sf::Color::Cyan, Right);
 
-		// draw the health and special ability status at the center-top of the window
-		// // First, set the string stream(s) to use in the lambda functions for accurately measuring the width of the text before drawing it.
-		std::stringstream currentHealthFormat;
-		currentHealthFormat << "Health: " << m_player->get<CHealth>().currentHealth;
-		std::stringstream maxHealthFormat;
-		maxHealthFormat << m_player->get<CHealth>().totalHealth;
+		// and draw the health and special ability status at the center-top of the window
+		// First, set the string stream(s) to use in the lambda functions for accurately measuring the width of the text before drawing it.
+		std::stringstream currentHealthFormat; // Create a string variable to hold the formatted current health string for display in the HUD, using a stringstream to format the integer value.
+		currentHealthFormat << "Health: " << m_player->get<CHealth>().currentHealth; // Format the current health as an integer for display in the HUD.
+		std::stringstream maxHealthFormat; // Create a string variable to hold the formatted max health string for display in the HUD, using a stringstream to format the integer value.
+		maxHealthFormat << m_player->get<CHealth>().totalHealth; // Format the max health as an integer for display in the HUD.
 		// Then, calculate the total width of the entire string set by summing the widths of each individual strings that will be drawn, using the measureString lambda function.
 		float totalWidth = measureString(currentHealthFormat.str(), 15).x + measureString(" / ", 15).x +
 			measureString(maxHealthFormat.str(), 15).x;
 		
 		// Then, set drawingX to the center of the window minus half of the total width of all the text so that the entire set of strings is centered when written from left to right.
 		drawingX = winW / 2.0f - totalWidth / 2.0f;
-
 		
 		drawingX += drawUIElement(currentHealthFormat.str(), 15, drawingX, drawingY, sf::Color::Cyan, Left).x;
 		drawingX += drawUIElement(" / ", 15, drawingX, drawingY, sf::Color::White, Left).x;
@@ -1332,44 +1345,47 @@ void Engine::sRender() {
 		if (m_currentSpecialAbility == 2 && m_specialAbilityActive) { // If SA2 is active,
 			// then set the special ability status string to indicate that SA2 is active and display the remaining duration of the special ability in seconds.
 			specialAbilityStatus << "Razor Shape Active: " << std::fixed << std::setprecision(2) << m_specialAbilityDuration << "s remaining!";
-			saStringColor = sf::Color::Yellow;
+			saStringColor = sf::Color::Yellow; // Set the color to yellow to indicate that SA2 is active.
 		}
 		else if (m_currentSpecialAbility == 2 && m_specialAbilityCooldown > 0.0f) { // If SA2 is selected but is on cooldown,
 			// then set the special ability status string to indicate that SA2 is on cooldown and display the remaining cooldown duration in seconds.
 			specialAbilityStatus << "Razor Shape: Ability Cooldown: " << std::fixed << std::setprecision(2) << m_specialAbilityCooldown << "s remaining!";
-			saStringColor = sf::Color::Red;
+			saStringColor = sf::Color::Red; // Set the color to red to indicate that SA2 is on cooldown.
 		}
 		else if (m_currentSpecialAbility == 2 && m_specialAbilityCooldown <= 0.0f && !m_specialAbilityActive) { // If SA2 is selected but is not active and not on cooldown,
 			// then set the special ability status string to indicate that SA2 is ready to use.
 			specialAbilityStatus << "Razor Shape Ready! - (RMB to Activate | Tab to Switch)";
-			saStringColor = sf::Color::Green;
+			saStringColor = sf::Color::Green; // Set the color to green to indicate that SA2 is ready to use.
 		}
 		else if (m_currentSpecialAbility == 1 && m_specialAbilityCooldown <= 0.0f && !m_specialAbilityActive) { // If SA1 is selected and is not on cooldown,
 			// then set the special ability status string to indicate that SA1 is ready to use.
 			specialAbilityStatus << "Ring of Bullets Ready! - (RMB to Activate | Tab to Switch)";
-			saStringColor = sf::Color::Green;
+			saStringColor = sf::Color::Green; // Set the color to green to indicate that SA1 is ready to use.
 		}
 		else if (m_currentSpecialAbility == 1 && m_specialAbilityCooldown > 0.0f) { // If SA1 is selected but is on cooldown,
 			// then set the special ability status string to indicate that SA1 is on cooldown and display the remaining cooldown duration in seconds.
 			specialAbilityStatus << "Ring of Bullets: Ability Cooldown: " << std::fixed << std::setprecision(2) << m_specialAbilityCooldown << "s remaining!";
-			saStringColor = sf::Color::Red;
+			saStringColor = sf::Color::Red; // Set the color to red to indicate that SA1 is on cooldown.
 		}
+		// Calculate the total width of the special ability status string using the measureString lambda function to center it properly.
 		float totalWidth1 = measureString(specialAbilityStatus.str(), 15).x;
+		// Set drawingX to the center of the window minus half of the total width of the special ability status string so that it is centered when drawn.
 		drawingX = winW / 2.0f - totalWidth1 / 2.0f;
 		drawingY += 15.0f + 10.0f; // Increment drawingY to position the special ability status string below the health display.
 		drawUIElement(specialAbilityStatus.str(), 15, drawingX, drawingY, saStringColor, Left);
 	}
 
-	if (m_gameOver) {
+	if (m_gameOver) { // If the game is over, render the game over overlay with the final score, high score, time survived, best time survived, and prompts for saving/quitting, returning to the main menu, or restarting.
 		drawingX = winW / 2.0f; // Set drawingX to the center of the window for the game over overlay text.
 		drawingY = winH / 2.0f - 120.0f; // Set drawingY to be above the center of the window for the game over overlay text.
-		sf::RectangleShape overlay(sf::Vector2f(winW, winH));
+		sf::RectangleShape overlay(sf::Vector2f(winW, winH)); // Create a rectangle shape that covers the entire window to serve as the background overlay for the game over screen.
 		overlay.setFillColor(sf::Color(0, 0, 0, 175)); // Semi-transparent black to darken the game world behind the overlay.
-		m_window.draw(overlay);
+		m_window.draw(overlay); // Draw the overlay to the window before drawing the game over text to ensure the text appears on top of the overlay for proper visibility and emphasis.
 
 		drawUIElement("GAME OVER", 72, drawingX, drawingY, sf::Color::Red, Center);
 		drawingY += 72.0f + 25.0f;
 
+		// First, calculate the total width of the entire string set by summing the widths of each individual strings that will be drawn, using the measureString lambda function.
 		float totalWidth1 = measureString("Score: " + std::to_string(m_currentScore), 32).x + measureString(" | ", 32).x +
 			measureString("High Score: " + std::to_string(m_highScore), 32).x;
 		// Set drawingX to the center of the window minus half of the total width of all the text so that the entire set of strings is centered when written from left to right.
@@ -1385,6 +1401,7 @@ void Engine::sRender() {
 		std::stringstream bestTimeStream; // Create a stringstream to format the best time survived with fixed decimal places for better readability and maintainability.
 		bestTimeStream << "Best Time: " << std::fixed << std::setprecision(3) << m_bestTimeSurvived << "s";
 
+		// First, calculate the total width of the entire string set by summing the widths of each individual strings that will be drawn, using the measureString lambda function.
 		float totalWidth2 = measureString(timeStream.str(), 32).x + measureString(" | ", 32).x +
 			measureString(bestTimeStream.str(), 32).x;
 		// Reset drawingX to the center of the window minus half of the total width of all the text so that the entire set of strings is centered when written from left to right.
@@ -1395,6 +1412,7 @@ void Engine::sRender() {
 		drawUIElement(bestTimeStream.str(), 32, drawingX, drawingY , sf::Color::Yellow, Left);
 		drawingY += 32.0f + 25.0f;
 
+		// First, calculate the total width of the entire string set by summing the widths of each individual strings that will be drawn, using the measureString lambda function.
 		float totalWidth3 = measureString("Press Esc to Save & Quit", 22).x + measureString(" | ", 22).x + 
 			measureString("M to Return to Main Menu", 24).x + measureString(" | ", 22).x + 
 			measureString("Or Any OTHER Key to Restart", 22).x;
@@ -1408,16 +1426,17 @@ void Engine::sRender() {
 		drawUIElement("Or Any OTHER Keys to Restart", 22, drawingX, drawingY, sf::Color::Green, Left).x;
 	}
 	
-	if (m_paused) {
+	if (m_paused) { // If the game is paused, render the paused overlay with prompts for resuming, saving/quitting, returning to the main menu, or restarting.
 		drawingX = winW / 2.0f; // Set drawingX to the center of the window for the paused overlay text.
 		drawingY = winH / 2.0f - 60.0f; // Set drawingY to be above the center of the window for the paused overlay text.
-		sf::RectangleShape overlay(sf::Vector2f(winW, winH));
+		sf::RectangleShape overlay(sf::Vector2f(winW, winH)); // Create a rectangle shape that covers the entire window to serve as the background overlay for the paused screen.
 		overlay.setFillColor(sf::Color(0, 0, 0, 125)); // Lighter overlay to visually distinguish pause from game over.
-		m_window.draw(overlay);
+		m_window.draw(overlay); // Draw the overlay to the window before drawing the paused text to ensure the text appears on top of the overlay for proper visibility and emphasis.
 
 		drawUIElement("PAUSED", 60, drawingX, drawingY, sf::Color::Yellow, Center);
 		drawingY += 60.0f + 25.0f;
 
+		// First, calculate the total width of the entire string set by summing the widths of each individual strings that will be drawn, using the measureString lambda function.
 		float totalWidth = measureString("P to Resume", 24).x + measureString(" | ", 24).x + 
 			measureString("R to Restart", 24).x + measureString(" | ", 24).x +
 			measureString("Esc to Save & Quit", 24).x + measureString(" | ", 24).x +
@@ -1438,7 +1457,7 @@ void Engine::sRender() {
 	m_window.display(); // Display the rendered frame on the window to update the visuals for the current frame and show the player the latest game state.
 }
 
-void Engine::sInput() {
+void Engine::sInput() { // The sInput function is responsible for handling all player input and interactions by polling events from the window and processing them accordingly.
 	sf::Event event; // Create an SFML event object to store the events polled from the window for processing player input and interactions.
 	while (m_window.pollEvent(event)) { // Poll events from the window in a loop to process all pending events for the current frame.
 		ImGui::SFML::ProcessEvent(event); // Pass the polled event to ImGui's event processing function to allow ImGui to handle input in the ImGui window.
@@ -1461,16 +1480,16 @@ void Engine::sInput() {
 				}
 			}
 
-			if (m_mainMenu) {
-				if (event.key.code == sf::Keyboard::Space) {
-					restartGame();
+			if (m_mainMenu) { // If the game is currently in the main menu state, then check for input to start a new game or reset high scores.
+				if (event.key.code == sf::Keyboard::Space) { // and if the Space key is pressed, then
+					restartGame(); // call the restartGame function to reset the game state and start a new game session with a fresh player entity and default values for all game variables.
 				}
 				if (event.key.code == sf::Keyboard::Backspace) { // and if the Backspace key is pressed,
 					m_highScore = 0; // Reset the in-memory high score to zero immediately so the HUD reflects the deletion right away.
 					m_bestTimeSurvived = 0.0f; // Reset the in-memory best time to zero immediately so the HUD reflects the deletion right away.
 					std::remove("AppData/SavedGame.dat"); // Delete the save file from disk so no records carry over to the next session.
 				}
-				continue;
+				continue; // Skip further processing of the event in the main menu since we only want to check for starting a new game or resetting high scores here.
 			}
 
 			// If the game is over and at least 3 seconds have passed since the game over state was entered, and if the pressed key is not Escape or M,

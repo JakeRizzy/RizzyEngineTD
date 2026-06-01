@@ -5,6 +5,7 @@
 
 # === RizzyEngine Custom Ignores ===
 imgui.ini
+AppData/
 
 # User-specific files
 *.rsuser
@@ -419,4 +420,3 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
-/imgui.ini

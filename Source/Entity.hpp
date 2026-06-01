@@ -6,14 +6,15 @@
 class EntityManager; // Forward declaration of the EntityManager class to allow it to be declared as a friend of the Entity class.
 
 using ComponentTuple = std::tuple< // Define a type alias for a tuple that contains all the components that an entity can have.
+	CSubtype, // The CSubtype component for subtype properties of entities.
 	CTransform, // The CTransform component for transformation properties of entities.
 	CShape, // The CShape component for shape properties of entities.
 	CCollision, // The CCollision component for collision properties of entities.
 	CLifespan, // The CLifespan component for lifespan properties of entities.
 	CInput, // The CInput component for input properties of entities.
 	// Optional Components based on feature needs for entities in the engine to be commented out if not needed:
-	// CHealth, // The CHealth component for health properties of entities.
-	// CDamage, // The CDamage component for damage properties of entities.
+	CHealth, // The CHealth component for health properties of entities.
+	CDamage, // The CDamage component for damage properties of entities.
 	CScoreValue, // The CScoreValue component for scoring properties of entities.
 	CSpecialAbility // The CSpecialAbility component for special ability properties of entities.
 >;

@@ -1,6 +1,6 @@
 	# Config file for the game. Each line represents a different configuration setting, with parameters separated by tabs. Lines starting with '#' are comments and are ignored by the game.
 	# Width | Height | Fullscreen | Window Title
-Window 1280		720			0		RizzyEngine 0.5.0: Geometry Wars Plus
+Window 1280		0			0		RizzyEngine 0.5.0: Geometry Wars Plus
 	#			Path					|		Size		| R G B
 Font Assets/Fonts/AstaSans-Regular.ttf			24				255 255 255
 	#	OutThick | Rad | ColRad | Vert | Fill R G B A | Out R G B A | Speed | Health

@@ -47,6 +47,7 @@ void Engine::init(const std::string& configPath) {
 					sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode(); // Then get the desktop video mode using SFML's VideoMode class to use the desktop resolution for calculating window size.
 					width = desktopMode.width / 1.5f; // Set the width to the desktop width divided by 1.5 to create a window that is slightly smaller than the full desktop resolution.
 					height = desktopMode.height / 1.5f; // Set the height to the desktop height divided by 1.5 to create a window that is slightly smaller than the full desktop resolution.
+					m_window.create(sf::VideoMode(width, height), windowTitle); // Create a windowed mode window using the SFML RenderWindow's create function.
 				}
 				else if (fullscreen) { // Check if the fullscreen flag is set in the config file. If it is,
 					m_window.create(sf::VideoMode(width, height), windowTitle, sf::Style::Fullscreen); // Then create a fullscreen window using the SFML RenderWindow's create function.
